@@ -5,14 +5,14 @@ import numpy as np
 G = 6.67430e-11  # Gravitational constant
 c = 3.0e8  # Speed of light
 
-def convert_kilogram_solar_mass(M): #Convert from kilograms to solar masses
-    return( (M*5.02785)*(10**-31) )
+def convert_kilogram_solar_mass(mass): #Convert from kilograms to solar masses
+    return( (mass*5.02785)*(10**-31) )
 
-def convert_solar_mass_kilogram(M): #Convert from solar masses to kilograms
-    return( (M*1.989)*(10**30) )
+def convert_solar_mass_kilogram(mass): #Convert from solar masses to kilograms
+    return( (mass*1.989)*(10**30) )
 
-def convert_meter_au(r): #Convert from meters to AU
-    return( (r*6.68459)*(10**-12) )
+def convert_meter_au(distance): #Convert from meters to AU
+    return( (distance*6.68459)*(10**-12) )
 
 def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
     r_mag = np.linalg.norm(r)
