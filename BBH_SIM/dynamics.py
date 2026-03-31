@@ -13,8 +13,7 @@ def convert_meter_au(distance): #Convert from meters to AU
     return( (distance*6.68459)*(10**-12) )
 def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
     r_mag = np.linalg.norm(r)
-    v_mag = np.linalg.norm(v)
-    # Newtonian acceleration
+    v_mag = np.linalg.norm(v)# Newtonian acceleration
     a_newton = -G * (m1 + m2) / r_mag**3 * r
 
     # Post-Newtonian corrections
