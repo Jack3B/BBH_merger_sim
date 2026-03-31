@@ -3,7 +3,7 @@
 import numpy as np
 
 G = 6.67430e-11  # Gravitational constant
-c = 3.0e8  # Speed of light
+c = 2.99792458e8  # Speed of light
 
 def convert_kilogram_solar_mass(mass): #Convert from kilograms to solar masses
     return( (mass*5.02785)*(10**-31) )
