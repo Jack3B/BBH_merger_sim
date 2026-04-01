@@ -12,7 +12,7 @@ def convert_solar_mass_kilogram(mass): #Convert from solar masses to kilograms
     return (mass * 1.989) * (10 ** 30)
 
 def convert_meter_au(distance): #Convert from meters to AU
-    return (distance * 6.68459) * (10 ** -12)
+return (distance * 6.68459) * (10 ** -12)
 
 def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
     r_mag = np.linalg.norm(r)
