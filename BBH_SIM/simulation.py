@@ -103,8 +103,8 @@ class BBHSimulation:
     def load_data(self, filename):
         # Read the merger flag from the header line
         with open(filename, "r") as f:
-        header = f.readline()  # e.g. "# merger_occurred=1"
-        self.merger_occurred = bool(int(header.strip().split("=")[1]))
+            header = f.readline()  # e.g. "# merger_occurred=1"
+            self.merger_occurred = bool(int(header.strip().split("=")[1]))
 
         data = np.loadtxt(filename)
         self.r1_array = data[:, :3]
