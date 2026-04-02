@@ -40,7 +40,7 @@ def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
 
     return a_newton + a_pn + a_rad_reaction + a_spin
 
-def compute_schwarzschild_radii(m1, m2) #Calculates the Schwarzschild radius in meters for a black hole with mass m in kg
+def compute_schwarzschild_radii(m1, m2): #Calculates the Schwarzschild radius in meters for a black hole with mass m in kg
     return( 
         r_sch1 = (2*G*m1) / (c**2)
         r_sch2 = (2*G*m2) / (c**2)
