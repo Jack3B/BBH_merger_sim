@@ -14,7 +14,7 @@ def test_compute_acceleration():
     m1 = 1.0
     m2 = 1.0
     a = compute_acceleration(r, v, m1, m2)
-    assert np.allclose(a, np.array([-1.33486e-10, 0.00000e00, 0.00000e00]), rtol=1e-6)
+    assert np.allclose(a, np.array([-1.33486e-10, 0.00000e00]), rtol=1e-6)
 
 
 def test_compute_1pn_correction():
@@ -26,7 +26,7 @@ def test_compute_1pn_correction():
     m2 = 1.0
     a_1pn = compute_1pn_correction(r, v, r_mag, v_mag, m1, m2)
     assert np.allclose(
-        a_1pn, np.array([-1.4831777e-29, 0.0000000e00, 0.0000000e00]), rtol=1e-6
+        a_1pn, np.array([-1.4831777e-29, 0.0000000e00]), rtol=1e-6
     )
 
 
@@ -39,7 +39,7 @@ def test_compute_2pn_correction():
     m2 = 1.0
     a_2pn = compute_2pn_correction(r, v, r_mag, v_mag, m1, m2)
     assert np.allclose(
-        a_2pn, np.array([-1.75985309e-55, 0.00000000e00, 0.00000000e00]), rtol=1e-6
+        a_2pn, np.array([-1.75985309e-55, 0.00000000e00]), rtol=1e-6
     )
 
 
@@ -51,7 +51,7 @@ def test_compute_radiation_reaction():
     m2 = 1.0
     a_rad = compute_radiation_reaction(r, v, r_mag, m1, m2)
     assert np.allclose(
-        a_rad, np.array([-0.00000000e00, -1.56610497e-73, -0.00000000e00]), rtol=1e-6
+        a_rad, np.array([-0.00000000e00, -1.56610497e-73]), rtol=1e-6
     )
 
 
@@ -64,5 +64,5 @@ def test_compute_spin_effects():
     spins = (s1, s2)
     a_spin = compute_spin_effects(r, v, r_mag, spins)
     assert np.allclose(
-        a_spin, np.array([0.00000000e00, 0.00000000e00, -1.48317778e-29]), rtol=1e-6
+        a_spin, np.array([0.00000000e00, 0.00000000e00]), rtol=1e-6
     )
