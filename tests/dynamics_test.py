@@ -9,8 +9,8 @@ from BBH_SIM.dynamics import (
 
 
 def test_compute_acceleration():
-    r = np.array([1.0, 0.0, 0.0])
-    v = np.array([0.0, 0.1, 0.0])
+    r = np.array([1.0, 0.0])
+    v = np.array([0.0, 0.1])
     m1 = 1.0
     m2 = 1.0
     a = compute_acceleration(r, v, m1, m2)
@@ -18,8 +18,8 @@ def test_compute_acceleration():
 
 
 def test_compute_1pn_correction():
-    r = np.array([1.0, 0.0, 0.0])
-    v = np.array([0.0, 0.1, 0.0])
+    r = np.array([1.0, 0.0])
+    v = np.array([0.0, 0.1])
     r_mag = 1.0
     v_mag = 0.1
     m1 = 1.0
@@ -31,8 +31,8 @@ def test_compute_1pn_correction():
 
 
 def test_compute_2pn_correction():
-    r = np.array([1.0, 0.0, 0.0])
-    v = np.array([0.0, 0.1, 0.0])
+    r = np.array([1.0, 0.0])
+    v = np.array([0.0, 0.1])
     r_mag = 1.0
     v_mag = 0.1
     m1 = 1.0
@@ -44,8 +44,8 @@ def test_compute_2pn_correction():
 
 
 def test_compute_radiation_reaction():
-    r = np.array([1.0, 0.0, 0.0])
-    v = np.array([0.0, 0.1, 0.0])
+    r = np.array([1.0, 0.0])
+    v = np.array([0.0, 0.1])
     r_mag = 1.0
     m1 = 1.0
     m2 = 1.0
@@ -56,11 +56,11 @@ def test_compute_radiation_reaction():
 
 
 def test_compute_spin_effects():
-    r = np.array([1.0, 0.0, 0.0])
-    v = np.array([0.0, 0.1, 0.0])
+    r = np.array([1.0, 0.0])
+    v = np.array([0.0, 0.1])
     r_mag = 1.0
-    s1 = np.array([0.1, 0.1, 0.1])
-    s2 = np.array([0.0, 0.0, -0.1])
+    s1 = np.array([0.1, 0.1])
+    s2 = np.array([0.0, 0.0])
     spins = (s1, s2)
     a_spin = compute_spin_effects(r, v, r_mag, spins)
     assert np.allclose(
