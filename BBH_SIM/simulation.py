@@ -47,8 +47,7 @@ class BBHSimulation:
         
     def run(self):
         
-        r_sch1 = compute_schwarzschild_radii(self.m1)
-        r_sch2 = compute_schwarzschild_radii(self.m2)
+        r_sch1, r_sch2 = compute_schwarzschild_radii(self.m1, self.m2)
         
         for _t in self.t_array:
             r = self.r2 - self.r1
