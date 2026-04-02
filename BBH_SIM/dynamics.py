@@ -40,6 +40,23 @@ def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
 
     return a_newton + a_pn + a_rad_reaction + a_spin
 
+def compute_schwarzschild_radii(m1, m2) #Calculates the Schwarzschild radius in meters for a black hole with mass m in kg
+    return( 
+        r_sch1 = (2*G*m1) / (c**2)
+        r_sch2 = (2*G*m2) / (c**2)
+    )
+    
+
+def compute_merger_event_test(r1, r2, r_sch1, r_sch2): #if separation distance <= r_sch1 + r_sch2 then merger == true)
+    x1, y1 = r1
+    x2, y2 = r2
+    
+    d_sep = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+    
+    merger = d_sep <= r_sch1 + r_sch2
+    
+    return merger
+
 
 def compute_1pn_correction(r, v, r_mag, v_mag, m1, m2):
     return (

@@ -1,6 +1,7 @@
 import numpy as np
 from .dynamics import compute_acceleration
-
+from .dynamics import compute_schwarzschild_radii
+from .dynamics import compute_merger_event_test
 
 class BBHSimulation:
     def __init__(
@@ -19,6 +20,8 @@ class BBHSimulation:
         spin=False,
         spin1=None,
         spin2=None,
+        r_sch1=None,
+        r_sch2=None,
     ):
         self.m1 = m1
         self.m2 = m2
@@ -40,8 +43,13 @@ class BBHSimulation:
         self.r2_array = []
         self.r1_array_2d = []
         self.r2_array_2d = []
-
+        self.merger_occurred = False
+        
     def run(self):
+        
+        r_sch1 = compute_schwarzschild_radii(self.m1)
+        r_sch2 = compute_schwarzschild_radii(self.m2)
+        
         for _t in self.t_array:
             r = self.r2 - self.r1
             v = self.v2 - self.v1
@@ -54,7 +62,13 @@ class BBHSimulation:
             a2 = -compute_acceleration(
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
-
+            
+            merger = compute_merger_event_test(r, r_sch1, r_sch2)
+            
+            if merger:
+                self.merger_occurred = True
+                break  # Exit the loop early
+            
             # Update velocities
             self.v1 += a1 * self.dt
             self.v2 += a2 * self.dt
@@ -66,6 +80,7 @@ class BBHSimulation:
             # Store positions
             self.r1_array.append(self.r1.copy())
             self.r2_array.append(self.r2.copy())
+          
 
             if self.r1.size == 3:  # Check if the input positions are 3D
                 self.r1_array_2d.append(self.r1[:2].copy())
@@ -83,9 +98,14 @@ class BBHSimulation:
         data = np.column_stack(
             (self.r1_array, self.r2_array, self.r1_array_2d, self.r2_array_2d)
         )
-        np.savetxt(filename, data)
+        np.savetxt(filename, data, header=f"merger_occurred={int(self.merger_occurred)}")
 
     def load_data(self, filename):
+        # Read the merger flag from the header line
+        with open(filename, "r") as f:
+        header = f.readline()  # e.g. "# merger_occurred=1"
+        self.merger_occurred = bool(int(header.strip().split("=")[1]))
+
         data = np.loadtxt(filename)
         self.r1_array = data[:, :3]
         self.r2_array = data[:, 3:6]
