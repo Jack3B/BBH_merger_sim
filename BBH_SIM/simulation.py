@@ -62,7 +62,7 @@ class BBHSimulation:
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
             
-            merger = compute_merger_event_test(r, r_sch1, r_sch2)
+            merger = compute_merger_event_test(self.r1, self.r2, r_sch1, r_sch2)
             
             if merger:
                 self.merger_occurred = True
