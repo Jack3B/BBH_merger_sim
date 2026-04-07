@@ -23,7 +23,7 @@ def compute_unit_vector(vector): #Gets the unit vectors for both the x/y compone
 def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
     r_mag = np.linalg.norm(r)
     v_mag = np.linalg.norm(v)
-
+    
     # Newtonian acceleration
     a_newton = -G * (m1 + m2) / r_mag**3 * r
 
@@ -70,7 +70,11 @@ def compute_distance(r1, r2): #Returns the distance between the two black holes;
     d_sep = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 
     return (d_sep)
-    
+
+
+def compute_remaining_distance_for_merger(separation_distance, r_sch1, r_sch2): #Returns how much closer the black holes needed to get for a merger to occur
+    return (separation_distance - (r_sch1 + r_sch2))
+
 
 def compute_1pn_correction(r, v, r_mag, v_mag, m1, m2):
     return (

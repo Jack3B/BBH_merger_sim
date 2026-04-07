@@ -18,6 +18,22 @@ class BBHSimulation:
         r2_fin,
         v1_fin,
         v2_fin,
+        r1_unit_vector_x_init,
+        r1_unit_vector_y_init,
+        r2_unit_vector_x_init,
+        r2_unit_vector_y_init,
+        v1_unit_vector_x_init,
+        v1_unit_vector_y_init,
+        v2_unit_vector_x_init,
+        v2_unit_vector_y_init,
+        r1_unit_vector_x_fin,
+        r1_unit_vector_y_fin,
+        r2_unit_vector_x_fin,
+        r2_unit_vector_y_fin,
+        v1_unit_vector_x_fin,
+        v1_unit_vector_y_fin,
+        v2_unit_vector_x_fin,
+        v2_unit_vector_y_fin,
         t_start,
         t_end,
         dt,
@@ -37,6 +53,13 @@ class BBHSimulation:
         self.r2 = r2_init
         self.v1 = v1_init
         self.v2 = v2_init
+
+        #Intital unit vectors, need to be saved
+        self.r1_unit_vector_x_init, self.r1_unit_vector_y_init = compute_unit_vector(self.r1)
+        self.r2_unit_vector_x_init, self.r2_unit_vector_y_init = compute_unit_vector(self.r2)
+        self.v1_unit_vector_x_init, self.v1_unit_vector_y_init = compute_unit_vector(self.v1)
+        self.v2_unit_vector_x_init, self.v2_unit_vector_y_init = compute_unit_vector(self.v2)
+        
         self.t_start = t_start
         self.t_end = t_end
         self.dt = dt
@@ -100,7 +123,6 @@ class BBHSimulation:
             self.r1_array.append(self.r1.copy())
             self.r2_array.append(self.r2.copy())
           
-
             if self.r1.size == 3:  # Check if the input positions are 3D
                 self.r1_array_2d.append(self.r1[:2].copy())
                 self.r2_array_2d.append(self.r2[:2].copy())
@@ -112,6 +134,12 @@ class BBHSimulation:
         self.r2_array = np.array(self.r2_array)
         self.r1_array_2d = np.array(self.r1_array_2d)
         self.r2_array_2d = np.array(self.r2_array_2d)
+
+        #Final unit vectors, need to be saved
+        self.r1_unit_vector_x_fin, self.r1_unit_vector_y_fin = compute_unit_vector(self.r1)
+        self.r2_unit_vector_x_fin, self.r2_unit_vector_y_fin = compute_unit_vector(self.r2)
+        self.v1_unit_vector_x_fin, self.v1_unit_vector_y_fin = compute_unit_vector(self.v1)
+        self.v2_unit_vector_x_fin, self.v2_unit_vector_y_fin = compute_unit_vector(self.v2)
 
     def save_data(self, filename):
         data = np.column_stack(
