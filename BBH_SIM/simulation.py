@@ -28,7 +28,8 @@ class BBHSimulation:
         spin2=None,
         r_sch1=None,
         r_sch2=None,
-        separation_distance=0
+        separation_distance=0,
+        separation_time=0
     ):
         self.m1 = m1
         self.m2 = m2
@@ -52,6 +53,7 @@ class BBHSimulation:
         self.r2_array_2d = []
         self.merger_occurred = False
         self.separation_distance = compute_distance(r1, r2)
+        self.separation_time = 0
         
     def run(self):
         
@@ -84,9 +86,10 @@ class BBHSimulation:
             self.r1 += self.v1 * self.dt
             self.r2 += self.v2 * self.dt
 
-            #Update separation distance; this value should be saved/updated every iteration as it decreases, UNTIL it starts to increase again. The last value saved will be the closest approach distance.
+            #Update separation distance and the time at this distance; these values should be saved/updated every iteration as distance decreases, UNTIL distance starts to increase again. The last values saved will be the closest approach distance and time.
             if self.separation_distance > compute_distance(r1, r2):
                 self.separation_distance = compute_distance(r1, r2)
+                self.separation_time = _t
 
             # Store positions
             self.r1_array.append(self.r1.copy())
