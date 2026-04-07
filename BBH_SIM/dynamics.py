@@ -14,6 +14,10 @@ def convert_solar_mass_kilogram(mass): #Convert from solar masses to kilograms
 def convert_meter_au(distance): #Convert from meters to AU
     return (distance * 6.68459) * (10 ** -12)
 
+def compute_unit_vector(vector_component): #Gets the unit vector for a given X or Y position or velocity component
+    vector_mag = np.linalg.norm(vector_component)
+    return (vector_component / vector_mag)
+
 def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
     r_mag = np.linalg.norm(r)
     v_mag = np.linalg.norm(v)
@@ -40,11 +44,11 @@ def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
 
     return a_newton + a_pn + a_rad_reaction + a_spin
 
-def compute_schwarzschild_radii(m1, m2) #Calculates the Schwarzschild radius in meters for a black hole with mass m in kg
-    return( 
-        r_sch1 = (2*G*m1) / (c**2)
-        r_sch2 = (2*G*m2) / (c**2)
-    )
+def compute_schwarzschild_radii(m1, m2): #Calculates the Schwarzschild radius in meters for a black hole with mass m in kg
+    r_sch1 = (2*G*m1) / (c**2)
+    r_sch2 = (2*G*m2) / (c**2)
+    
+    return(r_sch1, r_sch2)
     
 
 def compute_merger_event_test(r1, r2, r_sch1, r_sch2): #if separation distance <= r_sch1 + r_sch2 then merger == true)
@@ -57,6 +61,14 @@ def compute_merger_event_test(r1, r2, r_sch1, r_sch2): #if separation distance <
     
     return merger
 
+
+def compute_distance(r1, r2): #Returns the distance between the two black holes; this value should be saved/updated every iteration as it decreases, UNTIL it starts to increase again. The last value saved will be the closest approach distance.
+    x1, y1 = r1
+    x2, y2 = r2
+    d_sep = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
+    return (d_sep)
+    
 
 def compute_1pn_correction(r, v, r_mag, v_mag, m1, m2):
     return (

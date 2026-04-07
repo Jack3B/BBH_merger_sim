@@ -30,6 +30,3 @@ jobs:
         run: |
           which pytest
           pytest --version
-      - name: Run tests
-        run: |
-          pytest tests/

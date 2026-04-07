@@ -5,10 +5,10 @@ from BBH_SIM.simulation import BBHSimulation
 def test_bbh_simulation():
     m1 = 1.0
     m2 = 1.0
-    r1_init = np.array([0.0, 0.0, 0.0])
-    r2_init = np.array([1.0, 0.0, 0.0])
-    v1_init = np.array([0.0, 0.1, 0.0])
-    v2_init = np.array([0.0, -0.1, 0.0])
+    r1_init = np.array([0.0, 0.0])
+    r2_init = np.array([1.0, 0.0])
+    v1_init = np.array([0.0, 0.1])
+    v2_init = np.array([0.0, -0.1])
     t_start = 0.0
     t_end = 1.0
     dt = 0.1

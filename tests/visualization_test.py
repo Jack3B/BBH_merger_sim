@@ -4,8 +4,8 @@ from BBH_SIM.visualization import plot_orbits_3d, plot_waveform, plot_from_file
 
 
 def test_plot_orbits_3d():
-    r1_array = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
-    r2_array = np.array([[1.0, 0.0, 0.0], [2.0, 0.0, 0.0]])
+    r1_array = np.array([[0.0, 0.0], [1.0, 0.0]])
+    r2_array = np.array([[1.0, 0.0], [2.0, 0.0]])
     plot_orbits_3d(r1_array, r2_array, show=False)
     plt.close()
 
@@ -21,8 +21,8 @@ def test_plot_waveform():
 def test_plot_from_file(tmpdir):
     data = np.array(
         [
-            [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.1, 0.0],
-            [1.0, 1.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.2, 0.0],
+            [0.0, 0.0, 0.0, 1.0, 0.0, 0.1],
+            [1.0, 1.0, 0.0, 2.0, 0.0, 0.2],
         ]
     )
     file_path = tmpdir.join("simulation_data.txt")
