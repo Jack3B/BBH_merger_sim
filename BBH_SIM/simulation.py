@@ -52,6 +52,9 @@ class BBHSimulation:
         self.r1_array_2d = []
         self.r2_array_2d = []
         self.merger_occurred = False
+        self._merger_step = None   # step index at which merger was detected
+        self._r_sch1 = None
+        self._r_sch2 = None
         self.separation_distance = compute_distance(r1, r2)
         self.separation_time = 0
         
@@ -76,6 +79,8 @@ class BBHSimulation:
             
             if merger:
                 self.merger_occurred = True
+                self._merger_step = step
+                
                 break  # Exit the loop early
             
             # Update velocities
