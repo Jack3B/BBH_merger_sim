@@ -2,6 +2,8 @@ import numpy as np
 from .dynamics import compute_acceleration
 from .dynamics import compute_schwarzschild_radii
 from .dynamics import compute_merger_event_test
+from .dynamics import compute_unit_vector
+from .dynamics import compute_distance
 
 class BBHSimulation:
     def __init__(
@@ -12,6 +14,10 @@ class BBHSimulation:
         r2_init,
         v1_init,
         v2_init,
+        r1_fin,
+        r2_fin,
+        v1_fin,
+        v2_fin,
         t_start,
         t_end,
         dt,
@@ -22,6 +28,7 @@ class BBHSimulation:
         spin2=None,
         r_sch1=None,
         r_sch2=None,
+        separation_distance=0
     ):
         self.m1 = m1
         self.m2 = m2
@@ -44,6 +51,7 @@ class BBHSimulation:
         self.r1_array_2d = []
         self.r2_array_2d = []
         self.merger_occurred = False
+        self.separation_distance = compute_distance(r1, r2)
         
     def run(self):
         
@@ -75,6 +83,10 @@ class BBHSimulation:
             # Update positions
             self.r1 += self.v1 * self.dt
             self.r2 += self.v2 * self.dt
+
+            #Update separation distance; this value should be saved/updated every iteration as it decreases, UNTIL it starts to increase again. The last value saved will be the closest approach distance.
+            if self.separation_distance > compute_distance(r1, r2):
+                self.separation_distance = compute_distance(r1, r2)
 
             # Store positions
             self.r1_array.append(self.r1.copy())
