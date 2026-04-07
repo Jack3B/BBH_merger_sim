@@ -2,6 +2,7 @@ import numpy as np
 from .dynamics import compute_acceleration
 from .dynamics import compute_schwarzschild_radii
 from .dynamics import compute_merger_event_test
+from .datastorage import data_storage
 
 class BBHSimulation:
     def __init__(
@@ -45,6 +46,16 @@ class BBHSimulation:
         self.r2_array_2d = []
         self.merger_occurred = False
         
+        self._r1_init = r1_init.copy()
+        self._r2_init = r2_init.copy()
+        self._v1_init = v1_init.copy()
+        self._v2_init = v2_init.copy()
+
+        # ── Populated after run() ─────────────────────────────────────────────
+        self._r_sch1 = None
+        self._r_sch2 = None
+        self._merger_step = None #merger time
+        
     def run(self):
         
         r_sch1 = compute_schwarzschild_radii(self.m1)
@@ -67,7 +78,8 @@ class BBHSimulation:
             
             if merger:
                 self.merger_occurred = True
-                break  # Exit the loop early
+                self._merger_step = step
+                break
             
             # Update velocities
             self.v1 += a1 * self.dt
@@ -94,20 +106,67 @@ class BBHSimulation:
         self.r1_array_2d = np.array(self.r1_array_2d)
         self.r2_array_2d = np.array(self.r2_array_2d)
 
-    def save_data(self, filename):
-        data = np.column_stack(
-            (self.r1_array, self.r2_array, self.r1_array_2d, self.r2_array_2d)
+     def save_results(self, store, run_id: int) -> int:
+        """
+        Compute all derived quantities and append one row to a BBHResultsHDF5
+        store.  Returns the row index written.
+
+        Parameters
+        ----------
+        store   : BBHResultsHDF5 instance
+        run_id  : integer identifier for this run
+        """
+        if self._r_sch1 is None:
+            raise RuntimeError("Call run() before save_results().")
+
+        # ── BH1 velocity stats ─────────────────────────────────────────────
+        (bh1_vx_i, bh1_vy_i, bh1_vtot_i, bh1_ux_i, bh1_uy_i,
+         bh1_vx_f, bh1_vy_f, bh1_vtot_f, bh1_ux_f, bh1_uy_f,
+         bh1_defl) = self._velocity_stats(self._v1_init, self.v1)
+
+        # ── BH2 velocity stats ─────────────────────────────────────────────
+        (bh2_vx_i, bh2_vy_i, bh2_vtot_i, bh2_ux_i, bh2_uy_i,
+         bh2_vx_f, bh2_vy_f, bh2_vtot_f, bh2_ux_f, bh2_uy_f,
+         bh2_defl) = self._velocity_stats(self._v2_init, self.v2)
+
+        nearest_dist_au, nearest_time_s = self._compute_nearest_approach()
+
+        idx = store.append(
+            run_id                      = int(run_id),
+            bh1_mass_msol               = float(self.m1),
+            bh2_mass_msol               = float(self.m2),
+            impact_parameter_au         = self._compute_impact_parameter_au(),
+            bh1_schwarzschild_radius_km = float(self._r_sch1) / M_PER_KM,
+            bh2_schwarzschild_radius_km = float(self._r_sch2) / M_PER_KM,
+            # BH1 velocities
+            bh1_v_init_x_kms            = bh1_vx_i,
+            bh1_v_init_y_kms            = bh1_vy_i,
+            bh1_v_init_total_kms        = bh1_vtot_i,
+            bh1_v_init_unit_x           = bh1_ux_i,
+            bh1_v_init_unit_y           = bh1_uy_i,
+            bh1_v_final_x_kms           = bh1_vx_f,
+            bh1_v_final_y_kms           = bh1_vy_f,
+            bh1_v_final_total_kms       = bh1_vtot_f,
+            bh1_v_final_unit_x          = bh1_ux_f,
+            bh1_v_final_unit_y          = bh1_uy_f,
+            bh1_deflection_angle_deg    = bh1_defl,
+            # BH2 velocities
+            bh2_v_init_x_kms            = bh2_vx_i,
+            bh2_v_init_y_kms            = bh2_vy_i,
+            bh2_v_init_total_kms        = bh2_vtot_i,
+            bh2_v_init_unit_x           = bh2_ux_i,
+            bh2_v_init_unit_y           = bh2_uy_i,
+            bh2_v_final_x_kms           = bh2_vx_f,
+            bh2_v_final_y_kms           = bh2_vy_f,
+            bh2_v_final_total_kms       = bh2_vtot_f,
+            bh2_v_final_unit_x          = bh2_ux_f,
+            bh2_v_final_unit_y          = bh2_uy_f,
+            bh2_deflection_angle_deg    = bh2_defl,
+            # Outcome
+            merged                      = int(self.merger_occurred),
+            nearest_approach_dist_au    = nearest_dist_au,
+            nearest_approach_time_s     = nearest_time_s,
+            remaining_dist_for_merger_au= self._compute_remaining_dist_au(),
+            simulation_duration_yr      = self._compute_simulation_duration_yr(),
         )
-        np.savetxt(filename, data, header=f"merger_occurred={int(self.merger_occurred)}")
-
-    def load_data(self, filename):
-        # Read the merger flag from the header line
-        with open(filename, "r") as f:
-        header = f.readline()  # e.g. "# merger_occurred=1"
-        self.merger_occurred = bool(int(header.strip().split("=")[1]))
-
-        data = np.loadtxt(filename)
-        self.r1_array = data[:, :3]
-        self.r2_array = data[:, 3:6]
-        self.r1_array_2d = data[:, 6:8]
-        self.r2_array_2d = data[:, 8:]
+        return idx            
