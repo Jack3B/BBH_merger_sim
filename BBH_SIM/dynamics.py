@@ -62,6 +62,14 @@ def compute_merger_event_test(r1, r2, r_sch1, r_sch2): #if separation distance <
     return merger
 
 
+def compute_distance(r1, r2): #Returns the distance between the two black holes; this value should be saved/updated every iteration as it decreases, UNTIL it starts to increase again. The last value saved will be the closest approach distance.
+    x1, y1 = r1
+    x2, y2 = r2
+    d_sep = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
+    return (d_sep)
+    
+
 def compute_1pn_correction(r, v, r_mag, v_mag, m1, m2):
     return (
         G
