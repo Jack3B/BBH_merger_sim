@@ -4,6 +4,7 @@ from .dynamics import compute_schwarzschild_radii
 from .dynamics import compute_merger_event_test
 from .dynamics import compute_unit_vector
 from .dynamics import compute_distance
+from .dynamics import compute_remaining_distance_for_merger
 
 class BBHSimulation:
     def __init__(
@@ -46,6 +47,7 @@ class BBHSimulation:
         r_sch2=None,
         separation_distance=0,
         separation_time=0
+        distance_needed_for_merger=0
     ):
         self.m1 = m1
         self.m2 = m2
@@ -80,6 +82,7 @@ class BBHSimulation:
         self._r_sch2 = None
         self.separation_distance = compute_distance(r1, r2)
         self.separation_time = 0
+        self.distance_needed_for_merger = 0
         
     def run(self):
         
@@ -140,6 +143,9 @@ class BBHSimulation:
         self.r2_unit_vector_x_fin, self.r2_unit_vector_y_fin = compute_unit_vector(self.r2)
         self.v1_unit_vector_x_fin, self.v1_unit_vector_y_fin = compute_unit_vector(self.v1)
         self.v2_unit_vector_x_fin, self.v2_unit_vector_y_fin = compute_unit_vector(self.v2)
+
+        #Finding distance needed for merger at the closest approach, needs to be saved
+        self.distance_needed_for_merger = compute_remaining_distance_for_merger(self.separation_distance, r_sch1, r_sch2)
 
     def save_data(self, filename):
         data = np.column_stack(
