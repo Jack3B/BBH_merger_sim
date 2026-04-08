@@ -75,6 +75,14 @@ def compute_distance(r1, r2): #Returns the distance between the two black holes;
 def compute_remaining_distance_for_merger(separation_distance, r_sch1, r_sch2): #Returns how much closer the black holes needed to get for a merger to occur
     return (separation_distance - (r_sch1 + r_sch2))
 
+def compute_deflection_angle(unit_vector_initial, unit_vector_final): #Returns the deflection angle between an initial and final unit vector
+    return np.arccos(np.dot(unit_vector_initial, unit_vector_final))
+
+v1 = np.array([1, 0, 0])
+v2 = np.array([0, 1, 0])
+
+radians = angle_between(v1, v2)
+degrees = np.degrees(radians) # or np.rad2deg(radians)
 
 def compute_1pn_correction(r, v, r_mag, v_mag, m1, m2):
     return (
