@@ -5,6 +5,7 @@ from .dynamics import compute_merger_event_test
 from .dynamics import compute_unit_vector
 from .dynamics import compute_distance
 from .dynamics import compute_remaining_distance_for_merger
+from .dynamics import compute_deflection_angle
 
 class BBHSimulation:
     def __init__(
@@ -31,6 +32,8 @@ class BBHSimulation:
         r1_unit_vector_y_fin,
         r2_unit_vector_x_fin,
         r2_unit_vector_y_fin,
+        r1_deflection_angle,
+        r2_deflection_angle,
         v1_unit_vector_x_fin,
         v1_unit_vector_y_fin,
         v2_unit_vector_x_fin,
@@ -59,8 +62,12 @@ class BBHSimulation:
         #Intital unit vectors, need to be saved
         self.r1_unit_vector_x_init, self.r1_unit_vector_y_init = compute_unit_vector(self.r1)
         self.r2_unit_vector_x_init, self.r2_unit_vector_y_init = compute_unit_vector(self.r2)
+        
         self.v1_unit_vector_x_init, self.v1_unit_vector_y_init = compute_unit_vector(self.v1)
         self.v2_unit_vector_x_init, self.v2_unit_vector_y_init = compute_unit_vector(self.v2)
+
+        self.r1_deflection_angle = 0
+        self.r2_deflection_angle = 0
         
         self.t_start = t_start
         self.t_end = t_end
@@ -144,6 +151,11 @@ class BBHSimulation:
         self.v1_unit_vector_x_fin, self.v1_unit_vector_y_fin = compute_unit_vector(self.v1)
         self.v2_unit_vector_x_fin, self.v2_unit_vector_y_fin = compute_unit_vector(self.v2)
 
+        #Deflection angles, need to be saved
+        self.r1_deflection_angle = compute_deflection_angle((self.r1_unit_vector_x_init, self.r1_unit_vector_y_init), (self.r1_unit_vector_x_fin, self.r1_unit_vector_y_fin))
+        self.r2_deflection_angle = compute_deflection_angle((self.r2_unit_vector_x_init, self.r2_unit_vector_y_init), (self.r2_unit_vector_x_fin, self.r2_unit_vector_y_fin))
+        
+        
         #Finding distance needed for merger at the closest approach, needs to be saved
         self.distance_needed_for_merger = compute_remaining_distance_for_merger(self.separation_distance, r_sch1, r_sch2)
 
