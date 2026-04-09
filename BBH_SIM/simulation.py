@@ -16,28 +16,6 @@ class BBHSimulation:
         r2_init,
         v1_init,
         v2_init,
-        r1_fin,
-        r2_fin,
-        v1_fin,
-        v2_fin,
-        r1_unit_vector_x_init,
-        r1_unit_vector_y_init,
-        r2_unit_vector_x_init,
-        r2_unit_vector_y_init,
-        v1_unit_vector_x_init,
-        v1_unit_vector_y_init,
-        v2_unit_vector_x_init,
-        v2_unit_vector_y_init,
-        r1_unit_vector_x_fin,
-        r1_unit_vector_y_fin,
-        r2_unit_vector_x_fin,
-        r2_unit_vector_y_fin,
-        r1_deflection_angle,
-        r2_deflection_angle,
-        v1_unit_vector_x_fin,
-        v1_unit_vector_y_fin,
-        v2_unit_vector_x_fin,
-        v2_unit_vector_y_fin,
         t_start,
         t_end,
         dt,
@@ -46,29 +24,26 @@ class BBHSimulation:
         spin=False,
         spin1=None,
         spin2=None,
-        r_sch1=None,
-        r_sch2=None,
-        separation_distance=0,
-        separation_time=0
-        distance_needed_for_merger=0
     ):
         self.m1 = m1
         self.m2 = m2
-        self.r1 = r1_init
-        self.r2 = r2_init
-        self.v1 = v1_init
-        self.v2 = v2_init
+        self.r1 = r1_init.copy()
+        self.r2 = r2_init.copy()
+        self.v1 = v1_init.copy()
+        self.v2 = v2_init.copy()
 
-        #Intital unit vectors, need to be saved
-        self.r1_unit_vector_x_init, self.r1_unit_vector_y_init = compute_unit_vector(self.r1)
-        self.r2_unit_vector_x_init, self.r2_unit_vector_y_init = compute_unit_vector(self.r2)
-        
-        self.v1_unit_vector_x_init, self.v1_unit_vector_y_init = compute_unit_vector(self.v1)
-        self.v2_unit_vector_x_init, self.v2_unit_vector_y_init = compute_unit_vector(self.v2)
+        # Snapshots for deflection angle calculation post-run
+        self.r1_init = r1_init.copy()
+        self.r2_init = r2_init.copy()
+        self.v1_init = v1_init.copy()
+        self.v2_init = v2_init.copy()
 
-        self.r1_deflection_angle = 0
-        self.r2_deflection_angle = 0
-        
+        # Initial unit vectors
+        self.r1_unit_vector_x_init, self.r1_unit_vector_y_init = compute_unit_vector(r1_init)
+        self.r2_unit_vector_x_init, self.r2_unit_vector_y_init = compute_unit_vector(r2_init)
+        self.v1_unit_vector_x_init, self.v1_unit_vector_y_init = compute_unit_vector(v1_init)
+        self.v2_unit_vector_x_init, self.v2_unit_vector_y_init = compute_unit_vector(v2_init)
+
         self.t_start = t_start
         self.t_end = t_end
         self.dt = dt
@@ -84,21 +59,32 @@ class BBHSimulation:
         self.r1_array_2d = []
         self.r2_array_2d = []
         self.merger_occurred = False
-        self._merger_step = None   # step index at which merger was detected
-        self._r_sch1 = None
-        self._r_sch2 = None
-        self.separation_distance = compute_distance(r1, r2)
-        self.separation_time = 0
-        self.distance_needed_for_merger = 0
+
+        # Populated during/after run()
+        self.r_sch1 = None
+        self.r_sch2 = None
+        self.separation_distance = compute_distance(self.r1, self.r2)
+        self.separation_time = t_start
+        self.distance_needed_for_merger = None
+
+        # Final unit vectors and deflection angles — set after run()
+        self.r1_unit_vector_x_fin = None
+        self.r1_unit_vector_y_fin = None
+        self.r2_unit_vector_x_fin = None
+        self.r2_unit_vector_y_fin = None
+        self.v1_unit_vector_x_fin = None
+        self.v1_unit_vector_y_fin = None
+        self.v2_unit_vector_x_fin = None
+        self.v2_unit_vector_y_fin = None
+        self.r1_deflection_angle = None
+        self.r2_deflection_angle = None
         
-    def run(self):
-        
-        r_sch1, r_sch2 = compute_schwarzschild_radii(self.m1, self.m2)
-        
-        for _t in self.t_array:
+def run(self):
+        self.r_sch1, self.r_sch2 = compute_schwarzschild_radii(self.m1, self.m2)
+
+        for step, _t in enumerate(self.t_array):
             r = self.r2 - self.r1
             v = self.v2 - self.v1
-
             spins = (self.spin1, self.spin2) if self.spin else None
 
             a1 = compute_acceleration(
@@ -107,57 +93,100 @@ class BBHSimulation:
             a2 = -compute_acceleration(
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
-            
-            merger = compute_merger_event_test(self.r1, self.r2, r_sch1, r_sch2)
-            
+
+            merger = compute_merger_event_test(self.r1, self.r2, self.r_sch1, self.r_sch2)
+
             if merger:
                 self.merger_occurred = True
-                self._merger_step = step
-                
-                break  # Exit the loop early
-            
-            # Update velocities
+                break
+
             self.v1 += a1 * self.dt
             self.v2 += a2 * self.dt
-
-            # Update positions
             self.r1 += self.v1 * self.dt
             self.r2 += self.v2 * self.dt
 
-            #Update separation distance and the time at this distance; these values should be saved/updated every iteration as distance decreases, UNTIL distance starts to increase again. The last values saved will be the closest approach distance and time.
-            if self.separation_distance > compute_distance(r1, r2):
-                self.separation_distance = compute_distance(r1, r2)
+            # Track nearest approach — update as long as distance is decreasing
+            current_dist = compute_distance(self.r1, self.r2)
+            if current_dist < self.separation_distance:
+                self.separation_distance = current_dist
                 self.separation_time = _t
 
-            # Store positions
             self.r1_array.append(self.r1.copy())
             self.r2_array.append(self.r2.copy())
-          
-            if self.r1.size == 3:  # Check if the input positions are 3D
+
+            if self.r1.size == 3:
                 self.r1_array_2d.append(self.r1[:2].copy())
                 self.r2_array_2d.append(self.r2[:2].copy())
-            else:  # If the input positions are 2D, directly store them
+            else:
                 self.r1_array_2d.append(self.r1.copy())
                 self.r2_array_2d.append(self.r2.copy())
 
-        self.r1_array = np.array(self.r1_array)
-        self.r2_array = np.array(self.r2_array)
+        self.r1_array    = np.array(self.r1_array)
+        self.r2_array    = np.array(self.r2_array)
         self.r1_array_2d = np.array(self.r1_array_2d)
         self.r2_array_2d = np.array(self.r2_array_2d)
 
-        #Final unit vectors, need to be saved
+        # Final unit vectors
         self.r1_unit_vector_x_fin, self.r1_unit_vector_y_fin = compute_unit_vector(self.r1)
         self.r2_unit_vector_x_fin, self.r2_unit_vector_y_fin = compute_unit_vector(self.r2)
         self.v1_unit_vector_x_fin, self.v1_unit_vector_y_fin = compute_unit_vector(self.v1)
         self.v2_unit_vector_x_fin, self.v2_unit_vector_y_fin = compute_unit_vector(self.v2)
 
-        #Deflection angles, need to be saved
-        self.r1_deflection_angle = compute_deflection_angle((self.r1_unit_vector_x_init, self.r1_unit_vector_y_init), (self.r1_unit_vector_x_fin, self.r1_unit_vector_y_fin))
-        self.r2_deflection_angle = compute_deflection_angle((self.r2_unit_vector_x_init, self.r2_unit_vector_y_init), (self.r2_unit_vector_x_fin, self.r2_unit_vector_y_fin))
-        
-        
-        #Finding distance needed for merger at the closest approach, needs to be saved
-        self.distance_needed_for_merger = compute_remaining_distance_for_merger(self.separation_distance, r_sch1, r_sch2)
+        # Deflection angles
+        self.r1_deflection_angle = compute_deflection_angle(
+            (self.r1_unit_vector_x_init, self.r1_unit_vector_y_init),
+            (self.r1_unit_vector_x_fin,  self.r1_unit_vector_y_fin),
+        )
+        self.r2_deflection_angle = compute_deflection_angle(
+            (self.r2_unit_vector_x_init, self.r2_unit_vector_y_init),
+            (self.r2_unit_vector_x_fin,  self.r2_unit_vector_y_fin),
+        )
+
+        # Remaining distance needed for merger at closest approach
+        self.distance_needed_for_merger = compute_remaining_distance_for_merger(
+            self.separation_distance, self.r_sch1, self.r_sch2
+        )
+
+    def save_results(self, store, run_id: int) -> int:
+        """Append one row to a data_storage store directly from sim attributes."""
+        if self.r_sch1 is None:
+            raise RuntimeError("Call run() before save_results().")
+
+        return store.append(
+            run_id                          = run_id,
+            bh1_mass_msol                   = self.m1,
+            bh2_mass_msol                   = self.m2,
+            impact_parameter_au             = float(np.linalg.norm(self.r1_init) / AU_TO_M),
+            bh1_schwarzschild_radius_km     = self.r_sch1 / KM_TO_M,
+            bh2_schwarzschild_radius_km     = self.r_sch2 / KM_TO_M,
+            bh1_v_init_x_kms               = self.v1_init[0] / KM_TO_M,
+            bh1_v_init_y_kms               = self.v1_init[1] / KM_TO_M,
+            bh1_v_init_total_kms           = float(np.linalg.norm(self.v1_init)) / KM_TO_M,
+            bh1_v_init_unit_x              = self.v1_unit_vector_x_init,
+            bh1_v_init_unit_y              = self.v1_unit_vector_y_init,
+            bh1_v_final_x_kms              = self.v1[0] / KM_TO_M,
+            bh1_v_final_y_kms              = self.v1[1] / KM_TO_M,
+            bh1_v_final_total_kms          = float(np.linalg.norm(self.v1)) / KM_TO_M,
+            bh1_v_final_unit_x             = self.v1_unit_vector_x_fin,
+            bh1_v_final_unit_y             = self.v1_unit_vector_y_fin,
+            bh1_deflection_angle_deg       = self.r1_deflection_angle,
+            bh2_v_init_x_kms               = self.v2_init[0] / KM_TO_M,
+            bh2_v_init_y_kms               = self.v2_init[1] / KM_TO_M,
+            bh2_v_init_total_kms           = float(np.linalg.norm(self.v2_init)) / KM_TO_M,
+            bh2_v_init_unit_x              = self.v2_unit_vector_x_init,
+            bh2_v_init_unit_y              = self.v2_unit_vector_y_init,
+            bh2_v_final_x_kms              = self.v2[0] / KM_TO_M,
+            bh2_v_final_y_kms              = self.v2[1] / KM_TO_M,
+            bh2_v_final_total_kms          = float(np.linalg.norm(self.v2)) / KM_TO_M,
+            bh2_v_final_unit_x             = self.v2_unit_vector_x_fin,
+            bh2_v_final_unit_y             = self.v2_unit_vector_y_fin,
+            bh2_deflection_angle_deg       = self.r2_deflection_angle,
+            merged                         = int(self.merger_occurred),
+            nearest_approach_dist_au       = self.separation_distance / AU_TO_M,
+            nearest_approach_time_s        = self.separation_time,
+            remaining_dist_for_merger_au   = self.distance_needed_for_merger / AU_TO_M,
+            simulation_duration_yr         = (len(self.r1_array) * self.dt) / S_PER_YR,
+        )
 
     def save_data(self, filename):
         data = np.column_stack(
@@ -166,13 +195,11 @@ class BBHSimulation:
         np.savetxt(filename, data, header=f"merger_occurred={int(self.merger_occurred)}")
 
     def load_data(self, filename):
-        # Read the merger flag from the header line
         with open(filename, "r") as f:
-            header = f.readline()  # e.g. "# merger_occurred=1"
-            self.merger_occurred = bool(int(header.strip().split("=")[1]))
-
+            header = f.readline()
+        self.merger_occurred = bool(int(header.strip().split("=")[1]))
         data = np.loadtxt(filename)
-        self.r1_array = data[:, :3]
-        self.r2_array = data[:, 3:6]
+        self.r1_array    = data[:, :3]
+        self.r2_array    = data[:, 3:6]
         self.r1_array_2d = data[:, 6:8]
         self.r2_array_2d = data[:, 8:]
