@@ -18,8 +18,8 @@ R1_INIT_X = 0.0
 
 #xlsx_path = Path("InputParams/BHMergerSimulationParameters.xlsx") #111000
 #xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel.xlsx") #1110
-xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel_testrun.xlsx") #9 iterations for testing
-
+#xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel_testrun.xlsx") #9 iterations for testing
+xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel_1it.xlsx") #1 iteration for testing lol
 
 def load_parameters(xlsx_path: str | Path) -> pd.DataFrame:
     return pd.read_excel(xlsx_path)
