@@ -16,7 +16,9 @@ R2_INIT_BASE = np.array([-10.0 * AU_TO_M, 0.0])
 # BH1 starts at x = 0, y = impact_parameter (set per row)
 R1_INIT_X = 0.0
 
-xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel.xlsx")
+#xlsx_path = Path("InputParams/BHMergerSimulationParameters.xlsx") #111000
+#xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel.xlsx") #1110
+xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel_testrun.xlsx") #9 iterations for testing
 
 
 def load_parameters(xlsx_path: str | Path) -> pd.DataFrame:
