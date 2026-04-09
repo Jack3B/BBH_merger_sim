@@ -14,6 +14,9 @@ def convert_solar_mass_kilogram(mass): #Convert from solar masses to kilograms
 def convert_meter_au(distance): #Convert from meters to AU
     return (distance * 6.68459) * (10 ** -12)
 
+def convert_au_meter(distance): #Convert from AU to meters
+    return (distance * 1.496) * (10 ** 11)
+
 def compute_unit_vector(vector): #Gets the unit vectors for both the x/y components of the input vector
     vector_mag = np.linalg.norm(vector)
     unit_x_vector = (vector[0] / vector_mag)
