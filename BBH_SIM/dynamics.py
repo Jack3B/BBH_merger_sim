@@ -1,5 +1,4 @@
-# dynamics.py
-
+from __future__ import annotations
 import numpy as np
 
 G = 6.67430e-11  # Gravitational constant, in m^3 / (kg s^2)
@@ -19,31 +18,29 @@ def convert_au_meter(distance): #Convert from AU to meters
 
 def compute_unit_vector(vector): #Gets the unit vectors for both the x/y components of the input vector
     vector_mag = np.linalg.norm(vector)
-    unit_x_vector = (vector[0] / vector_mag)
-    unit_y_vector = (vector[1] / vector_mag)
+    if vector_mag == 0:
+        return 0.0, 0.0
+    unit_x_vector = vector[0] / vector_mag
+    unit_y_vector = vector[1] / vector_mag
     return unit_x_vector, unit_y_vector
 
 def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
     r_mag = np.linalg.norm(r)
     v_mag = np.linalg.norm(v)
-    
-    # Newtonian acceleration
+
     a_newton = -G * (m1 + m2) / r_mag**3 * r
 
-    # Post-Newtonian corrections
-    a_pn = np.zeros(3)
+    a_pn = np.zeros_like(r)
     if pn_order >= 1:
         a_pn += compute_1pn_correction(r, v, r_mag, v_mag, m1, m2)
     if pn_order >= 2:
         a_pn += compute_2pn_correction(r, v, r_mag, v_mag, m1, m2)
 
-    # Radiation reaction correction
-    a_rad_reaction = np.zeros(3)
+    a_rad_reaction = np.zeros_like(r)
     if radiation:
         a_rad_reaction = compute_radiation_reaction(r, v, r_mag, m1, m2)
 
-    # Spin effects (simplified)
-    a_spin = np.zeros(3)
+    a_spin = np.zeros_like(r)
     if spins is not None:
         a_spin = compute_spin_effects(r, v, r_mag, spins)
 

@@ -1,11 +1,17 @@
+from __future__ import annotations
 import numpy as np
-from .dynamics import compute_acceleration
-from .dynamics import compute_schwarzschild_radii
-from .dynamics import compute_merger_event_test
-from .dynamics import compute_unit_vector
-from .dynamics import compute_distance
-from .dynamics import compute_remaining_distance_for_merger
-from .dynamics import compute_deflection_angle
+from BBH_SIM.dynamics import compute_acceleration
+from BBH_SIM.dynamics import compute_schwarzschild_radii
+from BBH_SIM.dynamics import compute_merger_event_test
+from BBH_SIM.dynamics import compute_unit_vector
+from BBH_SIM.dynamics import compute_distance
+from BBH_SIM.dynamics import compute_remaining_distance_for_merger
+from BBH_SIM.dynamics import compute_deflection_angle
+
+# ── Unit conversions ──────────────────────────────────────────────────────────
+AU_TO_M  = 1.495978707e11   # AU  → m
+KM_TO_M  = 1e3              # km/s → m/s
+S_PER_YR = 3.15576e7        # seconds per year
 
 class BBHSimulation:
     def __init__(
@@ -79,7 +85,7 @@ class BBHSimulation:
         self.r1_deflection_angle = None
         self.r2_deflection_angle = None
         
-def run(self):
+    def run(self):
         self.r_sch1, self.r_sch2 = compute_schwarzschild_radii(self.m1, self.m2)
 
         for step, _t in enumerate(self.t_array):

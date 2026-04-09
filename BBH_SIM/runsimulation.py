@@ -1,9 +1,13 @@
+from __future__ import annotations
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from .simulation import BBHSimulation
-from .datastorage import data_storage
-from .dynamics import compute_positions
+from BBH_SIM.simulation import BBHSimulation
+from BBH_SIM.datastorage import data_storage
+
+# ── Unit conversions ──────────────────────────────────────────────────────────
+AU_TO_M = 1.495978707e11    # AU  → m
+KM_TO_M = 1e3               # km/s → m/s
 
 # ── Simulation time config ────────────────────────────────────────────────────
 T_START = 0.0
@@ -16,16 +20,14 @@ R2_INIT_BASE = np.array([-10.0 * AU_TO_M, 0.0])
 # BH1 starts at x = 0, y = impact_parameter (set per row)
 R1_INIT_X = 0.0
 
-#xlsx_path = Path("InputParams/BHMergerSimulationParameters.xlsx") #111000
-#xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel.xlsx") #1110
-#xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel_testrun.xlsx") #9 iterations for testing
-xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel_1it.xlsx") #1 iteration for testing lol
+xlsx_path = Path("InputParams/BHMergerSimulationParameters_constvel_1it.xlsx")
 
-def load_parameters(xlsx_path: str | Path) -> pd.DataFrame:
+
+def load_parameters(xlsx_path):
     return pd.read_excel(xlsx_path)
 
 
-def build_simulation(row: pd.Series) -> BBHSimulation:
+def build_simulation(row):
     impact_m = float(row["Impact Parameter (AU)"]) * AU_TO_M
 
     r1_init = np.array([R1_INIT_X, impact_m])
@@ -53,11 +55,7 @@ def build_simulation(row: pd.Series) -> BBHSimulation:
     )
 
 
-def run_all(xlsx_path: str | Path, output_path: str | Path, start_id: int = 1):
-    """
-    Run all simulations from the xlsx and append results to the HDF5 store.
-    Set start_id = len(store) + 1 to resume an interrupted run.
-    """
+def run_all(xlsx_path, output_path, start_id=1):
     params = load_parameters(xlsx_path)
     store  = data_storage(output_path)
 
@@ -70,4 +68,4 @@ def run_all(xlsx_path: str | Path, output_path: str | Path, start_id: int = 1):
 
 
 if __name__ == "__main__":
-    run_all(xlsx_path, output_path=Path("results/bbh_results.h5"))
+    run_all(xlsx_path, output_path=Path("BBH_SIM/results/bbh_results.h5"))
