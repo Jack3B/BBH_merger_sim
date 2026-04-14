@@ -12,6 +12,7 @@ from BBH_SIM.dynamics import compute_deflection_angle
 AU_TO_M  = 1.495978707e11   # AU  → m
 KM_TO_M  = 1e3              # km/s → m/s
 S_PER_YR = 3.15576e7        # seconds per year
+SOLARMASS_TO_KG = 1.989e30  # Msun → kg
 
 class BBHSimulation:
     def __init__(
@@ -31,18 +32,18 @@ class BBHSimulation:
         spin1=None,
         spin2=None,
     ):
-        self.m1 = m1
-        self.m2 = m2
-        self.r1 = r1_init.copy()
-        self.r2 = r2_init.copy()
-        self.v1 = v1_init.copy()
-        self.v2 = v2_init.copy()
+        self.m1 = m1 * SOLARMASS_TO_KG
+        self.m2 = m2 * SOLARMASS_TO_KG
+        self.r1 = r1_init.copy() * AU_TO_M
+        self.r2 = r2_init.copy() * AU_TO_M
+        self.v1 = v1_init.copy() * KM_TO_M
+        self.v2 = v2_init.copy() * KM_TO_M
 
         # Snapshots for deflection angle calculation post-run
-        self.r1_init = r1_init.copy()
-        self.r2_init = r2_init.copy()
-        self.v1_init = v1_init.copy()
-        self.v2_init = v2_init.copy()
+        self.r1_init = r1_init.copy() * AU_TO_M
+        self.r2_init = r2_init.copy() * AU_TO_M
+        self.v1_init = v1_init.copy() * KM_TO_M
+        self.v2_init = v2_init.copy() * KM_TO_M
 
         # Initial unit vectors
         self.r1_unit_vector_x_init, self.r1_unit_vector_y_init = compute_unit_vector(r1_init)
@@ -160,8 +161,8 @@ class BBHSimulation:
 
         return store.append(
             run_id                          = run_id,
-            bh1_mass_msol                   = self.m1,
-            bh2_mass_msol                   = self.m2,
+            bh1_mass_msol                   = self.m1 / SOLARMASS_TO_KG,
+            bh2_mass_msol                   = self.m2 / SOLARMASS_TO_KG,
             impact_parameter_au             = float(np.linalg.norm(self.r1_init) / AU_TO_M),
             bh1_schwarzschild_radius_km     = self.r_sch1 / KM_TO_M,
             bh2_schwarzschild_radius_km     = self.r_sch2 / KM_TO_M,
