@@ -26,24 +26,25 @@ class BBHSimulation:
         t_start,
         t_end,
         dt,
+        impact_m,
         pn_order=0,
         radiation=False,
         spin=False,
         spin1=None,
         spin2=None,
     ):
-        self.m1 = m1 * SOLARMASS_TO_KG
-        self.m2 = m2 * SOLARMASS_TO_KG
-        self.r1 = r1_init.copy() * AU_TO_M
-        self.r2 = r2_init.copy() * AU_TO_M
-        self.v1 = v1_init.copy() * KM_TO_M
-        self.v2 = v2_init.copy() * KM_TO_M
+        self.m1 = m1
+        self.m2 = m2
+        self.r1 = r1_init
+        self.r2 = r2_init
+        self.v1 = v1_init
+        self.v2 = v2_init
 
         # Snapshots for deflection angle calculation post-run
-        self.r1_init = r1_init.copy() * AU_TO_M
-        self.r2_init = r2_init.copy() * AU_TO_M
-        self.v1_init = v1_init.copy() * KM_TO_M
-        self.v2_init = v2_init.copy() * KM_TO_M
+        self.r1_init = r1_init
+        self.r2_init = r2_init
+        self.v1_init = v1_init
+        self.v2_init = v2_init
 
         # Initial unit vectors
         self.r1_unit_vector_x_init, self.r1_unit_vector_y_init = compute_unit_vector(r1_init)
@@ -59,6 +60,7 @@ class BBHSimulation:
         self.spin = spin
         self.spin1 = spin1
         self.spin2 = spin2
+        self.impact_m = impact_m
 
         self.t_array = np.arange(t_start, t_end + dt, dt)
         self.r1_array = []
@@ -85,7 +87,7 @@ class BBHSimulation:
         self.v2_unit_vector_y_fin = None
         self.r1_deflection_angle = None
         self.r2_deflection_angle = None
-        
+                
     def run(self):
         self.r_sch1, self.r_sch2 = compute_schwarzschild_radii(self.m1, self.m2)
 
@@ -97,7 +99,7 @@ class BBHSimulation:
             a1 = compute_acceleration(
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
-            a2 = -compute_acceleration(
+            a2 = compute_acceleration(
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
 
@@ -105,6 +107,7 @@ class BBHSimulation:
 
             if merger:
                 self.merger_occurred = True
+                print(f"\nMerger Occurred")
                 break
 
             self.v1 += a1 * self.dt
@@ -114,7 +117,8 @@ class BBHSimulation:
 
             # Track nearest approach — update as long as distance is decreasing
             current_dist = compute_distance(self.r1, self.r2)
-            if current_dist < self.separation_distance:
+            #print(f"step={step}, dist={current_dist:.6e}, best={self.separation_distance:.6e}")
+            if 0 < current_dist < self.separation_distance:
                 self.separation_distance = current_dist
                 self.separation_time = _t
 
@@ -163,11 +167,11 @@ class BBHSimulation:
             run_id                          = run_id,
             bh1_mass_msol                   = self.m1 / SOLARMASS_TO_KG,
             bh2_mass_msol                   = self.m2 / SOLARMASS_TO_KG,
-            impact_parameter_au             = float(np.linalg.norm(self.r1_init) / AU_TO_M),
+            impact_parameter_au             = self.impact_m / AU_TO_M,
             bh1_schwarzschild_radius_km     = self.r_sch1 / KM_TO_M,
             bh2_schwarzschild_radius_km     = self.r_sch2 / KM_TO_M,
-            bh1_v_init_x_kms               = self.v1_init[0] / KM_TO_M,
-            bh1_v_init_y_kms               = self.v1_init[1] / KM_TO_M,
+            bh1_v_init_x_kms               = self.v1_init[0],
+            bh1_v_init_y_kms               = self.v1_init[1],
             bh1_v_init_total_kms           = float(np.linalg.norm(self.v1_init)) / KM_TO_M,
             bh1_v_init_unit_x              = self.v1_unit_vector_x_init,
             bh1_v_init_unit_y              = self.v1_unit_vector_y_init,

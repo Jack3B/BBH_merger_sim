@@ -5,8 +5,10 @@ from pathlib import Path
 start = time.time()
 
 run_all(
-    xlsx_path   = Path("BBH_SIM/InputParams/BHMergerSimulationParameters_constvel_testrun.xlsx"),
+    xlsx_path   = Path("BBH_SIM/InputParams/BHMergerSimulationParameters.xlsx"),
     output_path = Path("BBH_SIM/Results/bbh_results.h5"),
+    #xlsx_path   = Path("BBH_SIM/InputParams/BHMergerSimulationParameters_1it.xlsx"),
+    #output_path = Path("BBH_SIM/Results/bbh_results_1it.h5"),
     start_id    = 1,
 )
 
