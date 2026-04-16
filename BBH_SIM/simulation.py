@@ -12,6 +12,7 @@ from BBH_SIM.dynamics import compute_deflection_angle
 AU_TO_M  = 1.495978707e11   # AU  → m
 KM_TO_M  = 1e3              # km/s → m/s
 S_PER_YR = 3.15576e7        # seconds per year
+S_PER_DAY = 86400           #seconds per day
 SOLARMASS_TO_KG = 1.989e30  # Msun → kg
 
 class BBHSimulation:
@@ -107,7 +108,7 @@ class BBHSimulation:
 
             if merger:
                 self.merger_occurred = True
-                print(f"\nMerger Occurred")
+                #print(f"\nMerger Occurred")
                 break
 
             self.v1 += a1 * self.dt
@@ -196,7 +197,7 @@ class BBHSimulation:
             nearest_approach_dist_au       = self.separation_distance / AU_TO_M,
             nearest_approach_time_s        = self.separation_time,
             remaining_dist_for_merger_au   = self.distance_needed_for_merger / AU_TO_M,
-            simulation_duration_yr         = (len(self.r1_array) * self.dt) / S_PER_YR,
+            simulation_duration_yr         = (len(self.r1_array) * self.dt) / S_PER_DAY,
         )
 
     def save_data(self, filename):
