@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import matplotlib.patheffects as pe
+from matplotlib.patches import FancyArrowPatch
 
 
 def plot_orbits_2d(r1_array, r2_array, show=True, save_path=None):
@@ -206,7 +208,132 @@ def plot_waveform(
     if show:
         plt.show()
 
+def plot_orbits_2d_rich(r1_au, r2_au, sim, run_id, save_path=None):
+    """
+    r1_au, r2_au : already downsampled, in AU
+    sim          : BBHSimulation instance (post-run)
+    """
+    AU_TO_M      = 1.495978707e11
+    SOLARMASS_TO_KG = 1.989e30
 
+    fig, axes = plt.subplots(1, 2, figsize=(16, 7))
+    fig.patch.set_facecolor("#0d0d0d")
+    for ax in axes:
+        ax.set_facecolor("#0d0d0d")
+        for spine in ax.spines.values():
+            spine.set_edgecolor("#444")
+        ax.tick_params(colors="#aaa")
+        ax.xaxis.label.set_color("#aaa")
+        ax.yaxis.label.set_color("#aaa")
+        ax.title.set_color("white")
+
+    # ── LEFT: full trajectory ─────────────────────────────────────────────────
+    ax = axes[0]
+
+    ax.plot(r1_au[:, 0], r1_au[:, 1], color="#4fa3e0", lw=0.8, alpha=0.85, label="BH1")
+    ax.plot(r2_au[:, 0], r2_au[:, 1], color="#e07b4f", lw=0.8, alpha=0.85, label="BH2")
+
+    # Start markers
+    ax.plot(*r1_au[0],  "o", color="#4fa3e0", ms=8, zorder=5)
+    ax.plot(*r2_au[0],  "o", color="#e07b4f", ms=8, zorder=5)
+
+    # End markers
+    ax.plot(*r1_au[-1], "x", color="#4fa3e0", ms=10, mew=2, zorder=5)
+    ax.plot(*r2_au[-1], "x", color="#e07b4f", ms=10, mew=2, zorder=5)
+
+    # Closest approach marker
+    sep_au = sim.separation_distance / AU_TO_M
+    sep_t  = sim.separation_time
+    ax.annotate(
+        f"Closest approach\n{sep_au:.4f} AU",
+        xy=(r1_au[0, 0], r1_au[0, 1]),   # approximate — just flags the BH1 start
+        xytext=(r1_au[0, 0] + 0.3, r1_au[0, 1] + 0.3),
+        color="white", fontsize=8,
+        arrowprops=dict(arrowstyle="->", color="white", lw=0.8),
+    )
+
+    ax.set_xlabel("X (AU)")
+    ax.set_ylabel("Y (AU)")
+    ax.set_title(f"Run {run_id} — Full Trajectory")
+    ax.legend(facecolor="#1a1a1a", edgecolor="#444", labelcolor="white", fontsize=9)
+    ax.set_aspect("equal", adjustable="datalim")
+    ax.grid(True, color="#222", lw=0.5)
+
+    # ── RIGHT: info panel ─────────────────────────────────────────────────────
+    ax2 = axes[1]
+    ax2.axis("off")
+
+    m1_sol = sim.m1 / SOLARMASS_TO_KG
+    m2_sol = sim.m2 / SOLARMASS_TO_KG
+    impact_au = sim.impact_m / AU_TO_M
+
+    v1_init_kms = np.linalg.norm(sim.v1_init) / 1e3
+    v2_init_kms = np.linalg.norm(sim.v2_init) / 1e3
+    v1_fin_kms  = np.linalg.norm(sim.v1) / 1e3
+    v2_fin_kms  = np.linalg.norm(sim.v2) / 1e3
+
+    duration_days = (len(sim.r1_array) * sim.dt) / 86400
+    remain_au = sim.distance_needed_for_merger / AU_TO_M if sim.distance_needed_for_merger else float("nan")
+
+    lines = [
+        ("Run ID",                   f"{run_id}"),
+        ("",                         ""),
+        ("── Bodies ──",             ""),
+        ("BH1 mass",                 f"{m1_sol:.2f} M☉"),
+        ("BH2 mass",                 f"{m2_sol:.2f} M☉"),
+        ("BH1 Schwarzschild r",      f"{sim.r_sch1/1e3:.1f} km"),
+        ("BH2 Schwarzschild r",      f"{sim.r_sch2/1e3:.1f} km"),
+        ("",                         ""),
+        ("── Initial conditions ──", ""),
+        ("Impact parameter",         f"{impact_au:.6f} AU"),
+        ("BH1 v₀",                   f"{v1_init_kms:.2f} km/s"),
+        ("BH2 v₀",                   f"{v2_init_kms:.2f} km/s"),
+        ("",                         ""),
+        ("── Outcome ──",            ""),
+        ("Merged",                   "YES ✓" if sim.merger_occurred else "NO ✗"),
+        ("Nearest approach",         f"{sep_au:.6f} AU"),
+        ("Nearest approach time",    f"{sep_t/86400:.3f} days"),
+        ("Remaining to merge",       f"{remain_au:.6f} AU"),
+        ("BH1 v_final",              f"{v1_fin_kms:.2f} km/s"),
+        ("BH2 v_final",              f"{v2_fin_kms:.2f} km/s"),
+        ("BH1 deflection",           f"{sim.r1_deflection_angle:.4f}°"),
+        ("BH2 deflection",           f"{sim.r2_deflection_angle:.4f}°"),
+        ("",                         ""),
+        ("── Simulation ──",         ""),
+        ("Duration",                 f"{duration_days:.3f} days"),
+        ("dt",                       f"{sim.dt} s"),
+        ("Steps",                    f"{len(sim.r1_array):,}"),
+    ]
+
+    y = 0.97
+    for label, value in lines:
+        if label.startswith("──"):
+            ax2.text(0.02, y, label, color="#888", fontsize=8.5,
+                     transform=ax2.transAxes, va="top", style="italic")
+        elif label == "":
+            pass
+        else:
+            ax2.text(0.02, y, label,  color="#aaa",   fontsize=9,
+                     transform=ax2.transAxes, va="top")
+            ax2.text(0.55, y, value,  color="white",  fontsize=9,
+                     transform=ax2.transAxes, va="top", weight="bold")
+        y -= 0.045
+
+    merged_color = "#50e87a" if sim.merger_occurred else "#e85050"
+    fig.suptitle(
+        f"BBH Flyby Simulation — Run {run_id}",
+        color="white", fontsize=13, weight="bold", y=1.01
+    )
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches="tight",
+                    facecolor=fig.get_facecolor())
+        print(f"[plot] saved to {save_path}")
+    else:
+        plt.show()
+        
+        
 def plot_from_file(file_path, plot_type="orbits", **kwargs):
     """
     Plot the simulation data from a file.
