@@ -100,7 +100,7 @@ class BBHSimulation:
             a1 = compute_acceleration(
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
-            a2 = compute_acceleration(
+            a2 = compute_acceleration( # <-- Need to add a negative sign back to the right side to this equation, before "compute_acceleration", when we figure out how to fix the acceleration issue thing
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
 
