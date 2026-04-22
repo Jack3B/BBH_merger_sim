@@ -99,6 +99,7 @@ class BBHSimulation:
             spins = (self.spin1, self.spin2) if self.spin else None
 
             a_rel = compute_acceleration(
+
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
             a1 = -a_rel  # BH1 accelerates toward BH2

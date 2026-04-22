@@ -24,7 +24,7 @@ def compute_unit_vector(vector): #Gets the unit vectors for both the x/y compone
     unit_y_vector = vector[1] / vector_mag
     return unit_x_vector, unit_y_vector
 
-def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None):
+def compute_acceleration(r, v, m1, m2, pn_order=1, radiation=False, spins=None): #Finds global acceleration of the system
     r_mag = np.linalg.norm(r)
     v_mag = np.linalg.norm(v)
 
