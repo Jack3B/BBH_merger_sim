@@ -1,3 +1,4 @@
+#simulation.py
 from __future__ import annotations
 import numpy as np
 from BBH_SIM.dynamics import compute_acceleration
@@ -97,12 +98,11 @@ class BBHSimulation:
             v = self.v2 - self.v1
             spins = (self.spin1, self.spin2) if self.spin else None
 
-            a1 = compute_acceleration(
+            a_rel = compute_acceleration(
                 r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
             )
-            a2 = compute_acceleration(
-                r, v, self.m1, self.m2, self.pn_order, self.radiation, spins
-            )
+            a1 = -a_rel  # BH1 accelerates toward BH2
+            a2 =  a_rel  # BH2 accelerates toward BH1
 
             merger = compute_merger_event_test(self.r1, self.r2, self.r_sch1, self.r_sch2)
 
