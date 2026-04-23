@@ -161,6 +161,8 @@ def plot_orbits_2d_rich(r1_au, r2_au, sim, run_id, save_path=None, zoom_au=0.5):
     ax_full.set_ylabel("Y (AU)")
     ax_full.set_title(f"Run {run_id} — Full Trajectory")
     ax_full.legend(facecolor="#1a1a1a", edgecolor="#444", labelcolor="white", fontsize=9)
+    ax_full.set_aspect("equal", adjustable="datalim")  # ← add this
+
 
     # ── Closest approach zoom ─────────────────────────────────────────────────
     dists  = np.linalg.norm(r1_au - r2_au, axis=1)
@@ -208,6 +210,7 @@ def plot_orbits_2d_rich(r1_au, r2_au, sim, run_id, save_path=None, zoom_au=0.5):
     ax_zoom.set_title(f"Closest Approach  (±{zoom_au} AU)")
     ax_zoom.legend(facecolor="#1a1a1a", edgecolor="#444", labelcolor="white", fontsize=8)
     ax_zoom.set_aspect("equal", adjustable="datalim")
+
 
     # Rectangle on full plot showing zoom region
     from matplotlib.patches import Rectangle
